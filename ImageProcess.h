@@ -35,8 +35,20 @@ extern const SquareMatrix<uint8_t> DM8;
  */
 SquareMatrix<uint8_t> *calcDitherMatrix(uint32_t index);
 
+/**
+ * Do dithering
+ * @param origin  Origin Image
+ * @param ditheringMatrix  dithering Matrix
+ * @return Dithered image
+ */
 Image dithering(const Image &origin, const SquareMatrix<uint8_t> *ditheringMatrix = &DM4);
 
+/**
+ * Do orderd dithering
+ * @param origin  Origin Image
+ * @param ditheringMatrix  dithering Matrix
+ * @return OrderedDithered image
+ */
 Image ordered_dithering(const Image &origin, const SquareMatrix<uint8_t> *ditheringMatrix = &DM4);
 
 Image dithering(const Image &origin, uint8_t *ditheringMatrix, uint32_t matrixColsOrRows);
