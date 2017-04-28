@@ -46,3 +46,4 @@ CTestTestfile.cmake
 .idea/vcs.xml
 .idea/workspace.xml
 cmake-build-debug/
+!.gitignore
