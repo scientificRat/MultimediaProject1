@@ -22,6 +22,7 @@ struct SquareMatrix {
 
 };
 
+// Predefined DitherMatrix
 extern const SquareMatrix<uint8_t> DM2;
 extern const SquareMatrix<uint8_t> DM3;
 extern const SquareMatrix<uint8_t> DM4;
@@ -37,22 +38,39 @@ SquareMatrix<uint8_t> *calcDitherMatrix(uint32_t index);
 
 /**
  * Do dithering
- * @param origin  Origin Image
- * @param ditheringMatrix  dithering Matrix
+ *
+ * @param origin            The Origin Image
+ * @param ditheringMatrix   The Dithering Matrix
  * @return Dithered image
  */
 Image dithering(const Image &origin, const SquareMatrix<uint8_t> *ditheringMatrix = &DM4);
 
 /**
- * Do orderd dithering
- * @param origin  Origin Image
- * @param ditheringMatrix  dithering Matrix
+ * Do ordered dithering
+ *
+ * @param origin                The Origin Image
+ * @param ditheringMatrix       The Dithering Matrix
  * @return OrderedDithered image
  */
 Image ordered_dithering(const Image &origin, const SquareMatrix<uint8_t> *ditheringMatrix = &DM4);
 
+/**
+ * Do dithering
+ *
+ * @param origin                The Origin Image
+ * @param ditheringMatrix       Dithering Matrix in linear-array format
+ * @param matrixColsOrRows      Dithering Matrix's cols or rows (side length)
+ * @return
+ */
 Image dithering(const Image &origin, uint8_t *ditheringMatrix, uint32_t matrixColsOrRows);
 
+/**
+ *
+ * @param origin             The Origin Image
+ * @param ditheringMatrix    Dithering Matrix in linear-array format
+ * @param colsOrRows         Dithering Matrix's cols or rows (side length)
+ * @return
+ */
 Image ordered_dithering(const Image &origin, uint8_t *ditheringMatrix, uint32_t colsOrRows);
 
 #endif //IMAGEPROCESS_H
