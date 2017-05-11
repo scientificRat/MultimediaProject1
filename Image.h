@@ -9,7 +9,7 @@ class ImageMat {
 public:
     typedef std::uint8_t Byte;
     enum Type {
-    	RGB, YUV, YIQ, YCbCr, HSI
+    	BGR, YUV, YIQ, YCbCr, HSI, Gray
 	};
     
 private:
@@ -23,11 +23,11 @@ private:
     void doCopy(const ImageMat &ImageMat);
 
     ImageMat();
-    ImageMat(uint32_t width, uint32_t height, uint32_t channels, Type type);
 
 public:
     static ImageMat createFromBMP(const std::string &inputFileURI);
 
+	ImageMat(uint32_t width, uint32_t height, uint32_t channels, Type type = BGR);
     ImageMat(const ImageMat &ImageMat);
 
     ImageMat &operator=(const ImageMat &ImageMat);
@@ -46,7 +46,7 @@ public:
     
     Type getType() const { return type; }
 
-    Byte *getRawData() const;
+	Byte *getRawData() const { return rawData; }
 
     ~ImageMat();
 };

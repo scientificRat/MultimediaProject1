@@ -1,4 +1,4 @@
-#include "ImageMat.h"
+#include "Image.h"
 #include <fstream>
 
 #pragma pack(1)
@@ -29,7 +29,7 @@ struct BITMAP_INFO_HEADER {
 
 
 ImageMat::ImageMat() :
-        channels(0), width(0), height(0), rawData(nullptr), Type(RGB)
+        channels(0), width(0), height(0), rawData(nullptr), type(RGB)
 		{}
 
 ImageMat ImageMat::createFromBMP(const std::string &inputFileURI) {
