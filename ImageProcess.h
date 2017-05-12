@@ -2,8 +2,8 @@
 // Created by 黄正跃 on 2017/4/27.
 //
 
-#ifndef IMAGEPROCESS_H
-#define IMAGEPROCESS_H
+#ifndef ImageMatPROCESS_H
+#define ImageMatPROCESS_H
 
 #include <vector>
 #include "Image.h"
@@ -39,38 +39,47 @@ SquareMatrix<uint8_t> *calcDitherMatrix(uint32_t index);
 /**
  * Do dithering
  *
- * @param origin            The Origin Image
+ * @param origin            The Origin ImageMat
  * @param ditheringMatrix   The Dithering Matrix
- * @return Dithered image
+ * @return Dithered ImageMat
  */
-Image dithering(const Image &origin, const SquareMatrix<uint8_t> *ditheringMatrix = &DM4);
+ImageMat dithering(const ImageMat &origin, const SquareMatrix<uint8_t> *ditheringMatrix = &DM4);
 
 /**
  * Do ordered dithering
  *
- * @param origin                The Origin Image
+ * @param origin                The Origin ImageMat
  * @param ditheringMatrix       The Dithering Matrix
- * @return OrderedDithered image
+ * @return OrderedDithered ImageMat
  */
-Image ordered_dithering(const Image &origin, const SquareMatrix<uint8_t> *ditheringMatrix = &DM4);
+ImageMat ordered_dithering(const ImageMat &origin, const SquareMatrix<uint8_t> *ditheringMatrix = &DM4);
 
 /**
  * Do dithering
  *
- * @param origin                The Origin Image
+ * @param origin                The Origin ImageMat
  * @param ditheringMatrix       Dithering Matrix in linear-array format
  * @param matrixColsOrRows      Dithering Matrix's cols or rows (side length)
  * @return
  */
-Image dithering(const Image &origin, uint8_t *ditheringMatrix, uint32_t matrixColsOrRows);
+ImageMat dithering(const ImageMat &origin, uint8_t *ditheringMatrix, uint32_t matrixColsOrRows);
 
 /**
  *
- * @param origin             The Origin Image
+ * @param origin             The Origin ImageMat
  * @param ditheringMatrix    Dithering Matrix in linear-array format
  * @param colsOrRows         Dithering Matrix's cols or rows (side length)
  * @return
  */
-Image ordered_dithering(const Image &origin, uint8_t *ditheringMatrix, uint32_t colsOrRows);
+ImageMat ordered_dithering(const ImageMat &origin, uint8_t *ditheringMatrix, uint32_t colsOrRows);
 
-#endif //IMAGEPROCESS_H
+/**
+ * Convert color (origin and output can be the same)
+ *
+ * @param origin
+ * @param output
+ * @param outputType
+ */
+void cvtColor(const ImageMat &origin, ImageMat &output, ImageMat::Type outputType);
+
+#endif //ImageMatPROCESS_H

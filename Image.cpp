@@ -27,10 +27,8 @@ struct BITMAP_INFO_HEADER {
 #pragma pack()
 
 
-
 ImageMat::ImageMat() :
-        channels(0), width(0), height(0), rawData(nullptr), type(RGB)
-		{}
+        channels(0), width(0), height(0), rawData(nullptr), type(BGR) {}
 
 ImageMat ImageMat::createFromBMP(const std::string &inputFileURI) {
     ImageMat ImageMat;
@@ -49,7 +47,7 @@ ImageMat ImageMat::createFromBMP(const std::string &inputFileURI) {
     // Get ImageMat data
     int lineSkipCount =
             ((ImageMat.width * ImageMat.channels + 3) & ~0x03)
-                                                 - ImageMat.width * ImageMat.channels; // Skip filled data
+            - ImageMat.width * ImageMat.channels; // Skip filled data
 
     ImageMat.rawData = new ImageMat::Byte[ImageMat.width * ImageMat.height * ImageMat.channels];
 
@@ -88,35 +86,16 @@ ImageMat::ImageMat(const ImageMat &ImageMat) :
     doCopy(ImageMat);
 }
 
-ImageMat &ImageMat::operator=(const ImageMat &ImageMat) {
+ImageMat &ImageMat::operator=(const ImageMat &imageMat) {
+    if (&imageMat == this) {
+        return *this;
+    }
     delete[] rawData;
-
-    channels = ImageMat.channels;
-    width = ImageMat.width;
-    height = ImageMat.height;
+    channels = imageMat.channels;
+    width = imageMat.width;
+    height = imageMat.height;
     rawData = nullptr;
-
-    doCopy(ImageMat);
-
-    return *this;
-}
-
-ImageMat::ImageMat(ImageMat &&ImageMat) :
-        channels(ImageMat.channels), width(ImageMat.width),
-        height(ImageMat.height), rawData(ImageMat.rawData) {
-    ImageMat.rawData = nullptr;
-}
-
-ImageMat &ImageMat::operator=(ImageMat &&ImageMat) {
-    delete[] rawData;
-
-    channels = ImageMat.channels;
-    width = ImageMat.width;
-    height = ImageMat.height;
-    rawData = ImageMat.rawData;
-
-    ImageMat.rawData = nullptr;
-
+    doCopy(imageMat);
     return *this;
 }
 
@@ -170,7 +149,7 @@ void ImageMat::saveToBMP(const std::string &outputFileURI) {
     file.close();
 }
 
-ImageMat::ImageMat(uint32_t width, uint32_t height, uint32_t channels, Type type) : 
-	width(width), height(height), channels(channels), type(type) {
+ImageMat::ImageMat(uint32_t width, uint32_t height, uint32_t channels, Type type) :
+        width(width), height(height), channels(channels), type(type) {
     rawData = new Byte[this->width * this->height * this->channels];
 }

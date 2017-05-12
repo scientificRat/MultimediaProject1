@@ -9,9 +9,9 @@ class ImageMat {
 public:
     typedef std::uint8_t Byte;
     enum Type {
-    	BGR, YUV, YIQ, YCbCr, HSI, Gray
-	};
-    
+        BGR, YUV, YIQ, YCbCr, HSI, Gray
+    };
+
 private:
     uint32_t channels;
     uint32_t width;
@@ -22,19 +22,33 @@ private:
 
     void doCopy(const ImageMat &ImageMat);
 
-    ImageMat();
-
 public:
+
     static ImageMat createFromBMP(const std::string &inputFileURI);
 
-	ImageMat(uint32_t width, uint32_t height, uint32_t channels, Type type = BGR);
-    ImageMat(const ImageMat &ImageMat);
+    ImageMat();
 
-    ImageMat &operator=(const ImageMat &ImageMat);
+    ImageMat(uint32_t width, uint32_t height, uint32_t channels, Type type = BGR);
 
-    ImageMat(ImageMat &&ImageMat);
+    ImageMat(const ImageMat &imageMat);
 
-    ImageMat &operator=(ImageMat &&ImageMat);
+    ImageMat &operator=(const ImageMat &imageMat);
+
+    ImageMat(ImageMat &&imageMat) :
+            channels(imageMat.channels), width(imageMat.width),
+            height(imageMat.height), rawData(imageMat.rawData) {
+        imageMat.rawData = nullptr;
+    }
+
+    ImageMat &operator=(ImageMat &&imageMat) {
+        delete[] rawData;
+        channels = imageMat.channels;
+        width = imageMat.width;
+        height = imageMat.height;
+        rawData = imageMat.rawData;
+        imageMat.rawData = nullptr;
+        return *this;
+    }
 
     void saveToBMP(const std::string &outputFileURI);
 
@@ -43,10 +57,10 @@ public:
     uint32_t getWidth() const { return width; }
 
     uint32_t getHeight() const { return height; }
-    
+
     Type getType() const { return type; }
 
-	Byte *getRawData() const { return rawData; }
+    Byte *getRawData() const { return rawData; }
 
     ~ImageMat();
 };
