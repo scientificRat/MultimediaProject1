@@ -136,19 +136,19 @@ void cvtColorToBGR(const ImageMat &origin, ImageMat &output) {
         output = ImageMat(origin.getWidth(), origin.getHeight(), 3, ImageMat::BGR);
     }
     // Do convert
-    uint32_t cols = origin.getHeight();
-    uint32_t rows = origin.getWidth();
+    uint32_t cols = origin.getWidth();
+    uint32_t rows = origin.getHeight();
     uint8_t *originData = origin.getRawData();
     uint8_t *outputData = output.getRawData();
     switch (origin.getType()) {
         case ImageMat::BGR:
-            // do nothing
+            output = origin;
             break;
         case ImageMat::YUV: {
             for (int i = 0; i < origin.getHeight(); ++i) {
                 for (int j = 0; j < origin.getWidth(); ++j) {
-                    uint8_t *originPix = originData + i * cols * 3 + j;
-                    uint8_t *outputPix = outputData + i * cols * 3 + j;
+                    uint8_t *originPix = originData + i * cols * 3 + j * 3;
+                    uint8_t *outputPix = outputData + i * cols * 3 + j * 3;
                     uint8_t Y = originPix[0];
                     uint8_t U = originPix[1];
                     uint8_t V = originPix[2];
@@ -165,8 +165,8 @@ void cvtColorToBGR(const ImageMat &origin, ImageMat &output) {
         case ImageMat::YCbCr: {
             for (int i = 0; i < origin.getHeight(); ++i) {
                 for (int j = 0; j < origin.getWidth(); ++j) {
-                    uint8_t *originPix = originData + i * cols * 3 + j;
-                    uint8_t *outputPix = outputData + i * cols * 3 + j;
+                    uint8_t *originPix = originData + i * cols * 3 + j * 3;
+                    uint8_t *outputPix = outputData + i * cols * 3 + j * 3;
                     uint8_t Y = originPix[0];
                     uint8_t Cb = originPix[1];
                     uint8_t Cr = originPix[2];
@@ -183,8 +183,8 @@ void cvtColorToBGR(const ImageMat &origin, ImageMat &output) {
         case ImageMat::YIQ: {
             for (int i = 0; i < origin.getHeight(); ++i) {
                 for (int j = 0; j < origin.getWidth(); ++j) {
-                    uint8_t *originPix = originData + i * cols * 3 + j;
-                    uint8_t *outputPix = outputData + i * cols * 3 + j;
+                    uint8_t *originPix = originData + i * cols * 3 + j * 3;
+                    uint8_t *outputPix = outputData + i * cols * 3 + j * 3;
                     uint8_t Y = originPix[0];
                     uint8_t I = originPix[1];
                     uint8_t Q = originPix[2];
@@ -202,8 +202,8 @@ void cvtColorToBGR(const ImageMat &origin, ImageMat &output) {
             for (int i = 0; i < origin.getHeight(); ++i) {
                 for (int j = 0; j < origin.getWidth(); ++j) {
                     // FIXME: some problems here
-                    uint8_t *originPix = originData + i * cols * 3 + j;
-                    uint8_t *outputPix = outputData + i * cols * 3 + j;
+                    uint8_t *originPix = originData + i * cols * 3 + j * 3;
+                    uint8_t *outputPix = outputData + i * cols * 3 + j * 3;
                     double H = originPix[0] / 255.0 * 360;
                     double S = originPix[1] / 255.0;
                     double I = originPix[2];
@@ -243,6 +243,7 @@ void cvtColorToBGR(const ImageMat &origin, ImageMat &output) {
             throw std::runtime_error("Unsupported Type");
             break;
     }
+    output.setType(ImageMat::BGR);
 }
 
 
@@ -264,18 +265,18 @@ void cvtColor(const ImageMat &origin, ImageMat &output, ImageMat::Type outputTyp
         throw std::runtime_error("Gray to non-gray is not supported");
     }
     // Convert to BGR
-    ImageMat bgrImage(origin.getWidth(), origin.getHeight(), origin.getChannels(), ImageMat::BGR);
+    ImageMat bgrImage;
     cvtColorToBGR(origin, bgrImage);
     // Convert BGR To other
-    uint32_t cols = origin.getHeight();
-    uint32_t rows = origin.getWidth();
-    uint8_t *originData = origin.getRawData();
+    uint32_t cols = bgrImage.getWidth();
+    uint32_t rows = bgrImage.getHeight();
+    uint8_t *originData = bgrImage.getRawData();
     uint8_t *outputData = output.getRawData();
     switch (outputType) {
         case ImageMat::Gray: {
             for (int i = 0; i < origin.getHeight(); ++i) {
                 for (int j = 0; j < origin.getWidth(); ++j) {
-                    uint8_t *originPix = originData + i * cols * 3 + j;
+                    uint8_t *originPix = originData + i * cols * 3 + j * 3;
                     outputData[i * cols + j] = static_cast<uint8_t >(originPix[2] * 0.299 + originPix[1] * 0.587 +
                                                                      originPix[0] * 0.114);
                 }
@@ -285,8 +286,8 @@ void cvtColor(const ImageMat &origin, ImageMat &output, ImageMat::Type outputTyp
         case ImageMat::YUV: {
             for (int i = 0; i < origin.getHeight(); ++i) {
                 for (int j = 0; j < origin.getWidth(); ++j) {
-                    uint8_t *originPix = originData + i * cols * 3 + j;
-                    uint8_t *outputPix = outputData + i * cols * 3 + j;
+                    uint8_t *originPix = originData + i * cols * 3 + j * 3;
+                    uint8_t *outputPix = outputData + i * cols * 3 + j * 3;
                     uint8_t R = originPix[2];
                     uint8_t G = originPix[1];
                     uint8_t B = originPix[0];
@@ -295,7 +296,7 @@ void cvtColor(const ImageMat &origin, ImageMat &output, ImageMat::Type outputTyp
                     // U
                     outputPix[1] = (uint8_t) (-0.148 * R - 0.289 * G + 0.437 * B);
                     // V
-                    outputPix[2] = (uint8_t) (0.615 * R + 0.515 * G - 0.100 * B);
+                    outputPix[2] = (uint8_t) (0.615 * R - 0.515 * G - 0.100 * B);
                 }
             }
             break;
@@ -303,8 +304,8 @@ void cvtColor(const ImageMat &origin, ImageMat &output, ImageMat::Type outputTyp
         case ImageMat::YCbCr: {
             for (int i = 0; i < origin.getHeight(); ++i) {
                 for (int j = 0; j < origin.getWidth(); ++j) {
-                    uint8_t *originPix = originData + i * cols * 3 + j;
-                    uint8_t *outputPix = outputData + i * cols * 3 + j;
+                    uint8_t *originPix = originData + i * cols * 3 + j * 3;
+                    uint8_t *outputPix = outputData + i * cols * 3 + j * 3;
                     uint8_t R = originPix[2];
                     uint8_t G = originPix[1];
                     uint8_t B = originPix[0];
@@ -321,8 +322,8 @@ void cvtColor(const ImageMat &origin, ImageMat &output, ImageMat::Type outputTyp
         case ImageMat::YIQ: {
             for (int i = 0; i < origin.getHeight(); ++i) {
                 for (int j = 0; j < origin.getWidth(); ++j) {
-                    uint8_t *originPix = originData + i * cols * 3 + j;
-                    uint8_t *outputPix = outputData + i * cols * 3 + j;
+                    uint8_t *originPix = originData + i * cols * 3 + j * 3;
+                    uint8_t *outputPix = outputData + i * cols * 3 + j * 3;
                     uint8_t R = originPix[2];
                     uint8_t G = originPix[1];
                     uint8_t B = originPix[0];
@@ -339,8 +340,8 @@ void cvtColor(const ImageMat &origin, ImageMat &output, ImageMat::Type outputTyp
         case ImageMat::HSI: {
             for (int i = 0; i < origin.getHeight(); ++i) {
                 for (int j = 0; j < origin.getWidth(); ++j) {
-                    uint8_t *originPix = originData + i * cols * 3 + j;
-                    uint8_t *outputPix = outputData + i * cols * 3 + j;
+                    uint8_t *originPix = originData + i * cols * 3 + j * 3;
+                    uint8_t *outputPix = outputData + i * cols * 3 + j * 3;
                     uint8_t R = originPix[2];
                     uint8_t G = originPix[1];
                     uint8_t B = originPix[0];
@@ -376,11 +377,12 @@ void cvtColor(const ImageMat &origin, ImageMat &output, ImageMat::Type outputTyp
             break;
         }
         case ImageMat::BGR:
+            output = bgrImage;
             break;
         default:
             throw std::runtime_error("Unsupported Type");
             break;
 
     }
-
+    output.setType(outputType);
 }

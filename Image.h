@@ -60,6 +60,10 @@ public:
 
     Type getType() const { return type; }
 
+    void setType(Type type) {
+        ImageMat::type = type;
+    }
+
     Byte *getRawData() const { return rawData; }
 
     ~ImageMat();
