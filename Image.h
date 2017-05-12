@@ -1,50 +1,55 @@
-#ifndef IMAGE_H
-#define IMAGE_H
+#ifndef ImageMat_H
+#define ImageMat_H
 
 #include <cstdint>
 #include <string>
 
 //This is a final class, no virtual funcs
-class Image {
+class ImageMat {
 public:
     typedef std::uint8_t Byte;
+    enum Type {
+    	BGR, YUV, YIQ, YCbCr, HSI, Gray
+	};
+    
 private:
-    unsigned int channels;
-    unsigned int width;
-    unsigned int height;
+    uint32_t channels;
+    uint32_t width;
+    uint32_t height;
+    Type type;
 
     Byte *rawData;
 
-    void doCopy(const Image &image);
+    void doCopy(const ImageMat &ImageMat);
 
-    Image();
+    ImageMat();
 
 public:
+    static ImageMat createFromBMP(const std::string &inputFileURI);
 
-    static Image createFromBMP(const std::string &inputFileURI);
+	ImageMat(uint32_t width, uint32_t height, uint32_t channels, Type type = BGR);
+    ImageMat(const ImageMat &ImageMat);
 
-    Image(uint32_t width, uint32_t height, uint32_t channels);
+    ImageMat &operator=(const ImageMat &ImageMat);
 
-    Image(const Image &image);
+    ImageMat(ImageMat &&ImageMat);
 
-    Image &operator=(const Image &image);
-
-    Image(Image &&image);
-
-    Image &operator=(Image &&image);
+    ImageMat &operator=(ImageMat &&ImageMat);
 
     void saveToBMP(const std::string &outputFileURI);
 
-    unsigned int getChannels() const;
+    uint32_t getChannels() const { return channels; }
 
-    unsigned int getWidth() const;
+    uint32_t getWidth() const { return width; }
 
-    unsigned int getHeight() const;
+    uint32_t getHeight() const { return height; }
+    
+    Type getType() const { return type; }
 
-    Byte *getRawData() const;
+	Byte *getRawData() const { return rawData; }
 
-    ~Image();
+    ~ImageMat();
 };
 
 
-#endif //IMAGE_H
+#endif //ImageMat_H

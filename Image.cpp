@@ -1,6 +1,6 @@
-
 #include "Image.h"
 #include <fstream>
+
 #pragma pack(1)
 struct BITMAP_FILE_HEADER {
     std::uint16_t bfType;
@@ -9,6 +9,7 @@ struct BITMAP_FILE_HEADER {
     std::uint16_t bfReserved2;
     std::uint32_t bfOffBits;
 };
+
 #pragma pack(1)
 struct BITMAP_INFO_HEADER {
     std::uint32_t biSize;
@@ -17,21 +18,22 @@ struct BITMAP_INFO_HEADER {
     std::uint16_t biPlanes;
     std::uint16_t biBitCount;
     std::uint32_t biCompression;
-    std::uint32_t biSizeImage;
+    std::uint32_t biSizeImageMat;
     std::int32_t biXPelsPerMeter;
     std::int32_t biYPelsPerMeter;
     std::uint32_t biClrUsed;
     std::uint32_t biClrImportant;
-
 };
 #pragma pack()
 
 
-Image::Image() :
-        channels(0), width(0), height(0), rawData(nullptr) {}
 
-Image Image::createFromBMP(const std::string &inputFileURI) {
-    Image image;
+ImageMat::ImageMat() :
+        channels(0), width(0), height(0), rawData(nullptr), type(RGB)
+		{}
+
+ImageMat ImageMat::createFromBMP(const std::string &inputFileURI) {
+    ImageMat ImageMat;
     BITMAP_FILE_HEADER header;
     BITMAP_INFO_HEADER info;
     std::ifstream file(inputFileURI, std::ifstream::binary);
@@ -39,90 +41,90 @@ Image Image::createFromBMP(const std::string &inputFileURI) {
     file.read((char *) &header, sizeof(BITMAP_FILE_HEADER))
             .read((char *) &info, sizeof(BITMAP_INFO_HEADER));
 
-    // Get image info
-    image.width = info.biWidth;
-    image.height = info.biHeight > 0 ? info.biHeight : -info.biHeight;
-    image.channels = info.biBitCount / 8;
+    // Get ImageMat info
+    ImageMat.width = info.biWidth;
+    ImageMat.height = info.biHeight > 0 ? info.biHeight : -info.biHeight;
+    ImageMat.channels = info.biBitCount / 8;
 
-    // Get image data
+    // Get ImageMat data
     int lineSkipCount =
-            ((image.width * image.channels + 3) & ~0x03)
-                                                 - image.width * image.channels; // Skip filled data
+            ((ImageMat.width * ImageMat.channels + 3) & ~0x03)
+                                                 - ImageMat.width * ImageMat.channels; // Skip filled data
 
-    image.rawData = new Image::Byte[image.width * image.height * image.channels];
+    ImageMat.rawData = new ImageMat::Byte[ImageMat.width * ImageMat.height * ImageMat.channels];
 
     file.seekg(header.bfOffBits, file.beg);
 
-    for (int i = 0; i < image.height; ++i) {
+    for (int i = 0; i < ImageMat.height; ++i) {
         char *rawDataPos = nullptr;
 
         if (info.biHeight > 0) {
-            rawDataPos = (char *) (image.rawData +
-                                   (image.height - 1 - i) * image.width * image.channels);
+            rawDataPos = (char *) (ImageMat.rawData +
+                                   (ImageMat.height - 1 - i) * ImageMat.width * ImageMat.channels);
         } else {
-            rawDataPos = (char *) (image.rawData +
-                                   i * image.width * image.channels);
+            rawDataPos = (char *) (ImageMat.rawData +
+                                   i * ImageMat.width * ImageMat.channels);
         }
 
-        file.read(rawDataPos, image.width * image.channels);
+        file.read(rawDataPos, ImageMat.width * ImageMat.channels);
         file.seekg(lineSkipCount, file.cur);
     }
 
     file.close();
-    return image;
+    return ImageMat;
 }
 
-void Image::doCopy(const Image &image) {
-    if (image.rawData != nullptr) {
-        rawData = new Byte[image.width * image.height * image.channels];
-        std::memcpy(rawData, image.rawData,
-                    image.width * image.height * image.channels);
+void ImageMat::doCopy(const ImageMat &ImageMat) {
+    if (ImageMat.rawData != nullptr) {
+        rawData = new Byte[ImageMat.width * ImageMat.height * ImageMat.channels];
+        std::memcpy(rawData, ImageMat.rawData,
+                    ImageMat.width * ImageMat.height * ImageMat.channels);
     }
 }
 
-Image::Image(const Image &image) :
-        channels(image.channels), width(image.width),
-        height(image.height), rawData(nullptr) {
-    doCopy(image);
+ImageMat::ImageMat(const ImageMat &ImageMat) :
+        channels(ImageMat.channels), width(ImageMat.width),
+        height(ImageMat.height), rawData(nullptr) {
+    doCopy(ImageMat);
 }
 
-Image &Image::operator=(const Image &image) {
+ImageMat &ImageMat::operator=(const ImageMat &ImageMat) {
     delete[] rawData;
 
-    channels = image.channels;
-    width = image.width;
-    height = image.height;
+    channels = ImageMat.channels;
+    width = ImageMat.width;
+    height = ImageMat.height;
     rawData = nullptr;
 
-    doCopy(image);
+    doCopy(ImageMat);
 
     return *this;
 }
 
-Image::Image(Image &&image) :
-        channels(image.channels), width(image.width),
-        height(image.height), rawData(image.rawData) {
-    image.rawData = nullptr;
+ImageMat::ImageMat(ImageMat &&ImageMat) :
+        channels(ImageMat.channels), width(ImageMat.width),
+        height(ImageMat.height), rawData(ImageMat.rawData) {
+    ImageMat.rawData = nullptr;
 }
 
-Image &Image::operator=(Image &&image) {
+ImageMat &ImageMat::operator=(ImageMat &&ImageMat) {
     delete[] rawData;
 
-    channels = image.channels;
-    width = image.width;
-    height = image.height;
-    rawData = image.rawData;
+    channels = ImageMat.channels;
+    width = ImageMat.width;
+    height = ImageMat.height;
+    rawData = ImageMat.rawData;
 
-    image.rawData = nullptr;
+    ImageMat.rawData = nullptr;
 
     return *this;
 }
 
-Image::~Image() {
+ImageMat::~ImageMat() {
     delete[] rawData;
 }
 
-void Image::saveToBMP(const std::string &outputFileURI) {
+void ImageMat::saveToBMP(const std::string &outputFileURI) {
     BITMAP_FILE_HEADER header;
     BITMAP_INFO_HEADER info;
     std::ofstream file(outputFileURI, std::ofstream::binary);
@@ -144,7 +146,7 @@ void Image::saveToBMP(const std::string &outputFileURI) {
     info.biHeight = height;
     info.biPlanes = 1;
     info.biBitCount = 8 * channels;
-    info.biCompression = info.biSizeImage = 0;
+    info.biCompression = info.biSizeImageMat = 0;
     info.biXPelsPerMeter = info.biYPelsPerMeter = 0;
     info.biClrUsed = info.biClrImportant = channels == 1 ? 256 : 0;
     file.write((const char *) &info, 40);
@@ -168,22 +170,7 @@ void Image::saveToBMP(const std::string &outputFileURI) {
     file.close();
 }
 
-unsigned int Image::getChannels() const {
-    return channels;
-}
-
-unsigned int Image::getWidth() const {
-    return width;
-}
-
-unsigned int Image::getHeight() const {
-    return height;
-}
-
-Image::Byte *Image::getRawData() const {
-    return rawData;
-}
-
-Image::Image(uint32_t width, uint32_t height, uint32_t channels) : width(width), height(height), channels(channels) {
+ImageMat::ImageMat(uint32_t width, uint32_t height, uint32_t channels, Type type) : 
+	width(width), height(height), channels(channels), type(type) {
     rawData = new Byte[this->width * this->height * this->channels];
 }
